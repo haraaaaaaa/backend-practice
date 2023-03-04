@@ -5,14 +5,19 @@ const fs = require('fs')
 const app = express()
 app.use(express.urlencoded({extended: false}))
 
-const blogsPath = path.join(__dirname, 'data', 'blogs.json')
-
 app.get('/post', (req, res) => {
-
+    res.sendFile(path.join(__dirname, 'views', 'post.html'))
 })
 
 app.post('/post', (req, res) => {
-    const blog = req.body
+    const blogsPath = path.join(__dirname, 'data', 'blogs.json')
+
+    fs.readFile(blogsPath, (err, blogs) => {
+        const updatedBlogs = [...JSON.parse(blogs), req.body]
+        fs.writeFile(blogsPath, JSON.stringify(updatedBlogs), () => {
+            res.redirect("/post");
+        })
+    })
 })
 
 app.listen(5000);
